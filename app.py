@@ -177,6 +177,6 @@ if submit and question:
 st.markdown("""
 <hr>
 <div style='text-align: center; font-size: 16px;'>
-    Built by GitHub ID <b>gee-46 (Gautam N Chipkar )</b>
+    Built by GitHub ID <b>gee-46 (Gautam N Chipkar)</b>
 </div>
 """, unsafe_allow_html=True)
