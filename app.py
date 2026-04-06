@@ -146,3 +146,37 @@ with col2:
     st.write("- Students in Data Science class")
     st.write("- Students with marks > 80")
     st.markdown("</div>", unsafe_allow_html=True)
+
+# ------------------ MAIN LOGIC ------------------ #
+if submit and question:
+    with st.spinner("Thinking..."):
+        schema = get_schema("student.db")
+        sql_query = get_gemini_response(question, prompt, schema)
+
+    st.subheader("🧾 Generated SQL")
+    st.code(sql_query, language="sql")
+
+    result, error = read_sql_query(sql_query, "student.db")
+
+    if error:
+        st.warning("⚠️ Fixing query automatically...")
+
+        fixed_query = fix_sql_query(sql_query, error, schema)
+        st.code(fixed_query, language="sql")
+
+        result, error = read_sql_query(fixed_query, "student.db")
+
+    if error:
+        st.error(f"❌ Error: {error}")
+    else:
+        st.success("✅ Query executed successfully")
+        df = pd.DataFrame(result)
+        st.dataframe(df, use_container_width=True)
+
+# ------------------ FOOTER ------------------ #
+st.markdown("""
+<hr>
+<div style='text-align: center; font-size: 16px;'>
+    Built by GitHub ID <b>gee-46 (Gautam N Chipkar )</b>
+</div>
+""", unsafe_allow_html=True)
