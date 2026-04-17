@@ -1,97 +1,161 @@
-# 🚀 QueryGenie — Intelligent Text-to-SQL Engine
+# 🤖 QueryGenie
 
-An advanced NLP-powered system that converts natural language queries into executable SQL using Large Language Models (LLMs), with built-in schema awareness and automatic error correction.
+### Offline NLP-Powered Text-to-SQL Engine (NLIDB)
 
----
-
-## 📌 Overview
-
-QueryGenie allows users to interact with databases using plain English instead of writing SQL queries manually. It leverages modern NLP techniques and LLM capabilities to understand user intent, generate SQL queries, execute them, and return structured results.
-
-This project demonstrates how natural language interfaces can simplify database interactions and improve accessibility for non-technical users.
+> 🧠 Built as a **6th Semester NLP Project** using classical Natural Language Processing techniques in Python.
+>
+> Transform natural language into executable SQL — fully offline, privacy-first, and zero API cost.
 
 ---
 
-## ✨ Key Features
+## 🎓 Academic Context
 
-### 🔍 Natural Language to SQL
+QueryGenie was developed as part of a **6th Semester Natural Language Processing project**, with a strong focus on implementing **core NLP concepts from scratch using Python** rather than relying on large language models.
 
-* Converts user queries like:
+This project emphasizes:
 
-  * *“Show students in Data Science class”*
-  * into valid SQL queries automatically.
-
----
-
-### 🧠 Schema-Aware Query Generation
-
-* Dynamically reads database schema
-* Ensures generated queries match actual table structure
-* Reduces hallucinations and errors
+* Practical application of NLP pipelines
+* Classical ML over black-box APIs
+* Explainability and transparency in language understanding
 
 ---
 
-### 🔁 Automatic SQL Error Correction
+## 🚀 Overview
 
-* Detects SQL execution failures
-* Uses LLM to refine and fix incorrect queries
-* Improves robustness and reliability
+**QueryGenie** is a Natural Language Interface to Database (NLIDB) that enables users to query structured databases using plain English or voice.
+
+Unlike LLM-based systems, it is built entirely using:
+
+* 🐍 **Python-based NLP pipeline**
+* 🧠 **Classical Machine Learning (scikit-learn)**
+* 🧩 **Rule-based linguistic processing**
+
+This makes the system:
+
+* 🔒 Fully offline
+* 💸 Zero-cost
+* ⚡ Lightweight and fast
+* 🛡️ Privacy-preserving
 
 ---
 
-### 📊 Interactive UI (Streamlit)
+## ✨ Features
 
-* Clean and responsive interface
-* Displays:
+### 🧠 Natural Language → SQL
 
+```text
+"Show students who scored more than 80"
+```
+
+```sql
+SELECT * FROM STUDENT WHERE MARKS > 80;
+```
+
+---
+
+### 🔐 100% Offline & Private
+
+* No APIs, no cloud
+* Runs locally
+* Suitable for secure environments
+
+---
+
+### 🎯 NLP-Driven Understanding
+
+* Intent Classification
+* Entity Extraction
+* Semantic Similarity Matching
+
+---
+
+### 📊 Explainable UI (Streamlit)
+
+* Query results visualization
+* Debug panel with:
+
+  * Intent + confidence
+  * Extracted entities
   * Generated SQL
-  * Query results in table format
-* Provides user-friendly interaction
 
 ---
 
-### ⚡ Multi-Table Support
+### 🎤 Voice Input
 
-* Supports queries across:
-
-  * `STUDENT`
-  * `MARKS`
-  * `COURSES`
-* Handles JOIN operations automatically
+* Speech-to-text query support
 
 ---
 
-## 🧠 NLP Concepts Implemented
+## 🧠 NLP Modules Covered
 
-This project is not just an API wrapper — it applies real NLP concepts:
+This project demonstrates key NLP concepts typically covered in a semester course:
 
-* **Natural Language Understanding (NLU)**
-  Interpreting user intent from free-text input
+### 1. Text Preprocessing
 
-* **Semantic Parsing**
-  Converting natural language → structured SQL queries
+* Tokenization
+* Lowercasing
+* Stopword handling (implicit via TF-IDF)
 
-* **Prompt Engineering**
-  Designing structured prompts for accurate LLM output
+### 2. Feature Extraction
 
-* **Context Injection (Schema Awareness)**
-  Providing database schema to guide model reasoning
+* **TF-IDF Vectorization**
+* Converts text into numerical feature space
 
-* **Iterative Refinement**
-  Using error feedback to improve generated queries
+### 3. Intent Classification
+
+* **Logistic Regression (Supervised Learning)**
+* Maps user queries to predefined intents
+
+### 4. Semantic Similarity
+
+* **Cosine Similarity**
+* Handles ambiguous or unseen queries
+
+### 5. Entity Extraction (Slot Filling)
+
+* **Regex-based pattern matching**
+* Extracts:
+
+  * Numerical values (e.g., 80)
+  * Conditions (>, <, =)
+  * Limits (Top N queries)
+
+### 6. Template-Based Language Understanding
+
+* Maps structured intent + entities → SQL templates
+
+### 7. Natural Language Generation (NLG)
+
+* Converts SQL results into readable responses
+
+---
+
+## 🧩 System Architecture
+
+```mermaid
+flowchart LR
+    A[User Input] --> B(TF-IDF Vectorization)
+    B --> C(Intent Classifier)
+    C --> D(Entity Extraction)
+    D --> E(SQL Generator)
+    E --> F(Database Execution)
+    F --> G(Response Generator)
+    G --> H(UI Output)
+```
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Component     | Technology Used   |
-| ------------- | ----------------- |
-| Language      | Python            |
-| UI Framework  | Streamlit         |
-| Database      | SQLite            |
-| LLM Backend   | Google Gemini API |
-| Data Handling | Pandas            |
-| Environment   | python-dotenv     |
+| Layer         | Technology                         |
+| ------------- | ---------------------------------- |
+| Language      | Python 3                           |
+| NLP           | TF-IDF, Cosine Similarity, Regex   |
+| ML            | Logistic Regression (scikit-learn) |
+| UI            | Streamlit                          |
+| Database      | SQLite3                            |
+| Data Handling | Pandas                             |
+| Voice         | SpeechRecognition                  |
 
 ---
 
@@ -100,50 +164,38 @@ This project is not just an API wrapper — it applies real NLP concepts:
 ```bash
 QueryGenie/
 │
-├── app.py              # Main Streamlit application
-├── sql.py              # Database utilities (if used)
-├── student.db          # Sample SQLite database
-├── requirements.txt    # Dependencies
-├── .env                # API key (NOT included in repo)
-├── README.md           # Project documentation
+├── app.py
+├── intent_classifier.py
+├── entity_extractor.py
+├── sql_generator.py
+├── response_generator.py
+├── speech_handler.py
+├── sql.py
+├── student.db
+├── requirements.txt
+└── README.md
 ```
 
 ---
 
-## ⚙️ Installation & Setup
-
-### 1️⃣ Clone the Repository
+## ⚙️ Setup & Installation
 
 ```bash
-git clone https://github.com/your-username/querygenie.git
+git clone https://github.com/gee-46/querygenie.git
 cd querygenie
+python -m venv venv
 ```
 
----
+Activate:
 
-### 2️⃣ Install Dependencies
+```bash
+venv\Scripts\activate   # Windows
+source venv/bin/activate # macOS/Linux
+```
 
 ```bash
 pip install -r requirements.txt
-```
-
----
-
-### 3️⃣ Configure API Key
-
-Create a `.env` file in the root directory:
-
-```
-GOOGLE_API_KEY=your_api_key_here
-```
-
-⚠️ Note: Do NOT upload `.env` to GitHub
-
----
-
-### 4️⃣ Run the Application
-
-```bash
+python sql.py
 streamlit run app.py
 ```
 
@@ -151,71 +203,63 @@ streamlit run app.py
 
 ## 💡 Example Queries
 
-Try asking:
-
-* Show all students
-* List students in Data Science class
-* Show students with marks greater than 80
-* Display student names along with their marks
-
----
-
-## 🔄 System Workflow
-
-1. User inputs a natural language query
-2. Schema is extracted from the database
-3. Prompt + schema + query → sent to LLM
-4. SQL query is generated
-5. Query is executed on SQLite
-6. If error occurs → auto-correction triggered
-7. Final result displayed to user
+* "Show all students"
+* "How many students are there?"
+* "Top 3 performers"
+* "Average marks"
+* "Students scoring above 80"
 
 ---
 
 ## 🎯 Use Cases
 
-* Educational tools for learning SQL
-* Natural language database querying
-* Business analytics without SQL knowledge
-* Rapid data exploration
+* 🎓 Academic NLP demonstrations
+* 📊 Database querying without SQL knowledge
+* 🔐 Offline enterprise tools
+* 🧠 Learning end-to-end NLP pipelines
 
 ---
 
 ## ⚠️ Limitations
 
-* Dependent on LLM API availability and quota
-* Performance may vary based on prompt quality
-* Limited to predefined schema (can be extended)
+* Single-table schema
+* Limited intent set
+* No advanced NER (yet)
 
 ---
 
 ## 🚀 Future Improvements
 
-* Chat-style conversational interface
-* Support for PostgreSQL / MySQL
-* Query explanation in natural language
-* Visualization (charts/graphs)
-* Offline fallback models
+* spaCy-based Named Entity Recognition
+* Multi-table JOIN support
+* Offline speech models (Whisper/Vosk)
+* Data visualization
 
 ---
 
 ## 👨‍💻 Author
 
 **Gautam N Chipkar**
-GitHub: [gee-46](https://github.com/gee-46)
+GitHub: [https://github.com/gee-46](https://github.com/gee-46)
 
 ---
 
 ## ⭐ Support
 
-If you found this project useful:
-
-* ⭐ Star the repository
-* 🍴 Fork it
-* 💡 Use it in your own projects
+* Star ⭐
+* Fork 🍴
+* Build 🚀
 
 ---
 
 ## 📜 License
 
-This project is open-source and available under the MIT License.
+MIT License
+
+---
+
+## 💎 Core Idea
+
+> This project proves that **powerful NLP systems can be built using Python and classical techniques** — without relying on expensive APIs or large models.
+
+**Explainable. Offline. Academic. Practical.**
