@@ -8,6 +8,8 @@
 
 ---
 
+---
+
 ## 🎓 Academic Context
 
 QueryGenie was developed as part of a **6th Semester Natural Language Processing project**, with a strong focus on implementing **core NLP concepts from scratch using Python** rather than relying on large language models.
@@ -147,15 +149,30 @@ flowchart LR
 
 ## 🛠️ Tech Stack
 
-| Layer         | Technology                         |
-| ------------- | ---------------------------------- |
-| Language      | Python 3                           |
-| NLP           | TF-IDF, Cosine Similarity, Regex   |
-| ML            | Logistic Regression (scikit-learn) |
-| UI            | Streamlit                          |
-| Database      | SQLite3                            |
-| Data Handling | Pandas                             |
-| Voice         | SpeechRecognition                  |
+### 🧠 NLP Stack (Core Intelligence)
+
+| Component             | Technology                                      | Purpose                                           |
+| --------------------- | ----------------------------------------------- | ------------------------------------------------- |
+| Text Vectorization    | TF-IDF                                          | Converts natural language into numerical features |
+| Similarity Engine     | Cosine Similarity                               | Handles ambiguous queries via semantic matching   |
+| Intent Classification | Logistic Regression (scikit-learn)              | Predicts user intent from query                   |
+| Entity Extraction     | Regex (re)                                      | Extracts conditions, values, and limits           |
+| NLP Pipeline          | Tokenization, Feature Engineering, Slot Filling | End-to-end language understanding workflow        |
+| Response Generation   | Rule-based NLG                                  | Converts SQL output into readable responses       |
+
+---
+
+### ⚙️ System Stack (Execution Layer)
+
+| Component     | Technology             | Purpose                                |
+| ------------- | ---------------------- | -------------------------------------- |
+| Language      | Python 3               | Core implementation language           |
+| Backend Logic | Modular Python Scripts | Handles pipeline orchestration         |
+| UI Framework  | Streamlit              | Interactive frontend + debug interface |
+| Database      | SQLite3                | Local query execution engine           |
+| Data Handling | Pandas                 | Data processing and formatting         |
+| Voice Input   | SpeechRecognition      | Converts speech to text                |
+| Security      | Template-based SQL     | Prevents SQL injection                 |
 
 ---
 
