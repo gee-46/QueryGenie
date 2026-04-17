@@ -15,9 +15,9 @@ cursor.execute(table_info)
 
 ## insert SOME MORE RECORDS 
 
-cursor.execute("INSERT INTO STUDENT VALUES('JOHN','10TH','A',85)")
+cursor.execute("INSERT INTO STUDENT VALUES('PATTY','10TH','A',85)")
 cursor.execute("INSERT INTO STUDENT VALUES('AMY','10TH','B',90)")
-cursor.execute("INSERT INTO STUDENT VALUES('DAVID','10TH','A',78)")
+cursor.execute("INSERT INTO STUDENT VALUES('TAMY','10TH','A',78)")
 cursor.execute("INSERT INTO STUDENT VALUES('SARA','10TH','B',92)")
 cursor.execute("INSERT INTO STUDENT VALUES('MIKE','10TH','A',80)")
 
@@ -33,5 +33,4 @@ for row in data:
     connection.commit()
     connection.close
      
-
 
