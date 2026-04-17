@@ -24,9 +24,9 @@ This project emphasizes:
 ## 👥 Team Members
 
 - **Gautam N Chipkar**
-- **Ameena**
-- **Asma**
-- **Jasmine**
+- **Ameena Naik**
+- **Asma Inamdar**
+- **Jasmine Mulla**
 
   
 ## 🚀 Overview
