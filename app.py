@@ -1,182 +1,135 @@
-from dotenv import load_dotenv
-load_dotenv()
-
-import streamlit as st
-import os
+stimport streamlit as st
 import sqlite3
 import pandas as pd
-from google import genai
 
-# ------------------ CONFIG ------------------ #
-client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
+# Import NLP Pipeline modules
+from intent_classifier import IntentClassifier
+from entity_extractor import EntityExtractor
+from sql_generator import SQLGenerator
+from response_generator import ResponseGenerator
+from speech_handler import listen_to_voice
 
-# ------------------ GEMINI RESPONSE ------------------ #
-def get_gemini_response(question, prompt, schema):
-    try:
-        full_prompt = f"""
-        Database schema:
-        {schema}
+# ------------------ NLP INITIALIZATION ------------------ #
+@st.cache_resource
+def load_nlp_pipeline():
+    """Initializes and trains the offline classical NLP models on startup."""
+    classifier = IntentClassifier(confidence_threshold=0.6)
+    classifier.train()  
+    extractor = EntityExtractor()
+    sql_gen = SQLGenerator()
+    response_gen = ResponseGenerator()
+    return classifier, extractor, sql_gen, response_gen
 
-        {prompt}
+classifier, extractor, sql_gen, response_gen = load_nlp_pipeline()
+DB_NAME = "student.db"
 
-        Question:
-        {question}
-        """
-
-        response = client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=full_prompt
-        )
-
-        return response.text.strip()
-
-    except Exception as e:
-        return f"Error: {e}"
-
-# ------------------ FIX SQL ------------------ #
-def fix_sql_query(bad_sql, error, schema):
-    try:
-        fix_prompt = f"""
-        You are an SQL expert.
-
-        Wrong SQL:
-        {bad_sql}
-
-        Error:
-        {error}
-
-        Schema:
-        {schema}
-
-        Fix it and return ONLY SQL.
-        """
-
-        response = client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=fix_prompt
-        )
-
-        return response.text.strip()
-
-    except Exception as e:
-        return f"Error: {e}"
-
-# ------------------ EXECUTE SQL ------------------ #
+# ------------------ DATABASE OPERATIONS ------------------ #
 def read_sql_query(sql, db):
-    conn = sqlite3.connect(db)
-    cur = conn.cursor()
-
     try:
-        cur.execute(sql)
-        rows = cur.fetchall()
+        conn = sqlite3.connect(db)
+        df = pd.read_sql_query(sql, conn)
         conn.close()
-        return rows, None
+        return df, None
     except Exception as e:
-        conn.close()
+        if 'conn' in locals(): conn.close()
         return None, str(e)
 
-# ------------------ GET SCHEMA ------------------ #
-def get_schema(db):
-    conn = sqlite3.connect(db)
-    cur = conn.cursor()
-
-    tables = ["STUDENT", "MARKS", "COURSES"]
-    schema_info = []
-
-    for table in tables:
-        try:
-            cur.execute(f"PRAGMA table_info({table})")
-            cols = cur.fetchall()
-            col_names = ", ".join([col[1] for col in cols])
-            schema_info.append(f"{table}({col_names})")
-        except:
-            pass
-
-    conn.close()
-    return "\n".join(schema_info)
-
-# ------------------ PROMPT ------------------ #
-prompt = """
-You are an expert SQL generator.
-Convert the user question into a valid SQLite SQL query.
-Return ONLY SQL.
-"""
-
 # ------------------ UI DESIGN ------------------ #
-st.set_page_config(page_title="AI Query Assistant", layout="wide")
+st.set_page_config(page_title="Offline NLP SQL Assistant", layout="wide")
 
+# Add missing style rules for UI and DataFrame fixes previously noticed in logs
 st.markdown("""
     <style>
-    .main-title {
-        text-align: center;
-        font-size: 42px;
-        font-weight: bold;
-        color: #4CAF50;
-    }
-    .subtitle {
-        text-align: center;
-        font-size: 18px;
-        color: grey;
-        margin-bottom: 30px;
-    }
-    .card {
-        background-color: #f9f9f9;
-        padding: 20px;
-        border-radius: 15px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
+    .main-title { text-align: center; font-size: 40px; font-weight: bold; color: #4CAF50; }
+    .subtitle { text-align: center; font-size: 18px; color: grey; margin-bottom: 20px; }
+    .stButton>button { width: 100%; border-radius: 20px; background-color: #4CAF50; color: white; }
+    .debug-box { background-color: #f0f2f6; color: #333; padding: 15px; border-radius: 10px; border-left: 5px solid #4CAF50; font-family: monospace; }
+    .debug-warn { background-color: #fff3cd; color: #333; padding: 15px; border-radius: 10px; border-left: 5px solid #ffc107; font-family: monospace; }
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<div class="main-title">🤖 AI Database Query Assistant</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">Ask questions in natural language and get instant SQL results</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-title">🤖 Offline NLP DB Assistant</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle">Classical NLP Pipeline with Voice Input</div>', unsafe_allow_html=True)
+
+# Session State for Voice Input
+if "transcribed_text" not in st.session_state:
+    st.session_state["transcribed_text"] = ""
+if "voice_success" not in st.session_state:
+    st.session_state["voice_success"] = False
 
 col1, col2 = st.columns([2, 1])
 
 with col1:
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
-    question = st.text_input("💬 Enter your question:")
-    submit = st.button("🚀 Generate & Run Query")
-    st.markdown("</div>", unsafe_allow_html=True)
+    # Voice Trigger
+    if st.button("🎤 Use Voice Input"):
+        with st.spinner("🎙️ Listening... Speak now!"):
+            success, result = listen_to_voice(timeout=5, phrase_time_limit=5)
+            if success:
+                st.session_state["transcribed_text"] = result
+                st.session_state["query_input"] = result
+                st.session_state["voice_success"] = True
+                st.success("Processing speech...")
+            else:
+                st.session_state["voice_success"] = False
+                st.error(f"Voice input failed: {result} Please type your query in the box below.")
 
+    if st.session_state["voice_success"] and st.session_state["transcribed_text"]:
+        st.info(f"**Recognized Speech:** {st.session_state['transcribed_text']}")
+
+    # User Query Input Box
+    question = st.text_input("💬 Ask a question about the students:", key="query_input")
+    
+    # User Confirmation Button
+    submit = st.button("🚀 Run Query")
+    
 with col2:
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.markdown("### 💡 Example Queries")
-    st.write("- Show all students")
-    st.write("- Students in Data Science class")
-    st.write("- Students with marks > 80")
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.info("💡 **Try asking:**\n- List all students\n- Who are the top 3 performers?\n- Show students who got above 80\n- What is the class average?")
 
-# ------------------ MAIN LOGIC ------------------ #
+st.markdown("---")
+show_debug = st.checkbox("🔍 Show NLP Debug Info")
+
+# ------------------ MAIN EXECUTION ------------------ #
 if submit and question:
-    with st.spinner("Thinking..."):
-        schema = get_schema("student.db")
-        sql_query = get_gemini_response(question, prompt, schema)
+    with st.spinner("Processing offline NLP pipeline..."):
+        
+        # 1. Intent Classification
+        intent, confidence, is_fallback, debug_msg = classifier.predict(question)
+        
+        # 2. Entity Extraction
+        entities = extractor.extract(question)
+        
+        # 3. SQL Generation
+        sql_query = None
+        if not is_fallback:
+            sql_query = sql_gen.generate(intent, entities)
+            if not sql_query:
+                is_fallback = True 
 
-    st.subheader("🧾 Generated SQL")
-    st.code(sql_query, language="sql")
+        # Debug Panel
+        if show_debug:
+            st.subheader("🛠️ NLP Pipeline Diagnostics")
+            if is_fallback:
+                st.markdown(f"<div class='debug-warn'><b>Intent:</b> {intent} (Fallback triggered)<br><b>Reason:</b> {debug_msg}<br><b>Entities:</b> {entities}</div>", unsafe_allow_html=True)
+            else:
+                st.markdown(f"<div class='debug-box'><b>Intent:</b> {intent} ({confidence:.2f} conf)<br><b>Status:</b> {debug_msg}<br><b>Entities extracted:</b> {entities}<br><b>Mapped SQL:</b> {sql_query}</div>", unsafe_allow_html=True)
 
-    result, error = read_sql_query(sql_query, "student.db")
+        # Output / Response
+        if is_fallback:
+            st.warning(f"⚠️ **Graceful Fallback:** {debug_msg}")
+        elif sql_query:
+            # Execute SQL
+            df_result, error = read_sql_query(sql_query, DB_NAME)
+            
+            if error:
+                st.error(f"❌ SQL Execution Error: {error}")
+            else:
+                # 4. NLG Response
+                response_text = response_gen.generate(intent, df_result)
+                
+                st.success(f"🤖 **Assistant:** {response_text}")
+                
+                if df_result is not None and not df_result.empty:
+                    # Rendering dataframe correctly according to new Streamlit API
+                    st.dataframe(df_result, width="stretch")
 
-    if error:
-        st.warning("⚠️ Fixing query automatically...")
-
-        fixed_query = fix_sql_query(sql_query, error, schema)
-        st.code(fixed_query, language="sql")
-
-        result, error = read_sql_query(fixed_query, "student.db")
-
-    if error:
-        st.error(f"❌ Error: {error}")
-    else:
-        st.success("✅ Query executed successfully")
-        df = pd.DataFrame(result)
-        st.dataframe(df, use_container_width=True)
-
-# ------------------ FOOTER ------------------ #
-st.markdown("""
-<hr>
-<div style='text-align: center; font-size: 16px;'>
-    Built by GitHub ID <b>gee-46 (Gautam N Chipkar & Team)</b>
-</div>
-""", unsafe_allow_html=True)
+st.markdown(f"<br><br><div style='text-align: center; color: grey;'>Built with strictly offline classical NLP techniques and SpeechRecognition.</div>", unsafe_allow_html=True)
