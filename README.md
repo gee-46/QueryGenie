@@ -21,7 +21,14 @@ This project emphasizes:
 * Explainability and transparency in language understanding
 
 ---
+## 👥 Team Members
 
+- **Gautam N Chipkar**
+- **Ameena**
+- **Asma**
+- **Jasmine**
+
+  
 ## 🚀 Overview
 
 **QueryGenie** is a Natural Language Interface to Database (NLIDB) that enables users to query structured databases using plain English or voice.
