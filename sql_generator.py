@@ -9,7 +9,6 @@ class SQLGenerator:
         """
         if intent == "fallback":
             return None
-
         # Base query components
         select_clause = f"SELECT * FROM {self.table_name}"
         where_clause = ""
@@ -43,7 +42,6 @@ class SQLGenerator:
             
         elif intent == "filter_by_marks":
             query = select_clause + where_clause + order_limit_clause
-        
         else:
             return None
 
