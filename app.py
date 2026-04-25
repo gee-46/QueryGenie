@@ -88,48 +88,4 @@ with col2:
 st.markdown("---")
 show_debug = st.checkbox("🔍 Show NLP Debug Info")
 
-# ------------------ MAIN EXECUTION ------------------ #
-if submit and question:
-    with st.spinner("Processing offline NLP pipeline..."):
-        
-        # 1. Intent Classification
-        intent, confidence, is_fallback, debug_msg = classifier.predict(question)
-        
-        # 2. Entity Extraction
-        entities = extractor.extract(question)
-        
-        # 3. SQL Generation
-        sql_query = None
-        if not is_fallback:
-            sql_query = sql_gen.generate(intent, entities)
-            if not sql_query:
-                is_fallback = True 
 
-        # Debug Panel
-        if show_debug:
-            st.subheader("🛠️ NLP Pipeline Diagnostics")
-            if is_fallback:
-                st.markdown(f"<div class='debug-warn'><b>Intent:</b> {intent} (Fallback triggered)<br><b>Reason:</b> {debug_msg}<br><b>Entities:</b> {entities}</div>", unsafe_allow_html=True)
-            else:
-                st.markdown(f"<div class='debug-box'><b>Intent:</b> {intent} ({confidence:.2f} conf)<br><b>Status:</b> {debug_msg}<br><b>Entities extracted:</b> {entities}<br><b>Mapped SQL:</b> {sql_query}</div>", unsafe_allow_html=True)
-
-        # Output / Response
-        if is_fallback:
-            st.warning(f"⚠️ **Graceful Fallback:** {debug_msg}")
-        elif sql_query:
-            # Execute SQL
-            df_result, error = read_sql_query(sql_query, DB_NAME)
-            
-            if error:
-                st.error(f"❌ SQL Execution Error: {error}")
-            else:
-                # 4. NLG Response
-                response_text = response_gen.generate(intent, df_result)
-                
-                st.success(f"🤖 **Assistant:** {response_text}")
-                
-                if df_result is not None and not df_result.empty:
-                    # Rendering dataframe correctly according to new Streamlit API
-                    st.dataframe(df_result, width="stretch")
-
-st.markdown(f"<br><br><div style='text-align: center; color: grey;'>Built with strictly offline classical NLP techniques and SpeechRecognition.</div>", unsafe_allow_html=True)
