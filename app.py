@@ -128,7 +128,7 @@ if submit and question:
                 st.success(f"🤖 **Assistant:** {response_text}")
                 
                 if df_result is not None and not df_result.empty:
-                    # Rendering dataframe correctly according to new Streamlit API
+                    # Rendering dataframe correctly according to new Streamlit 
                     st.dataframe(df_result, width="stretch")
 
 st.markdown(f"<br><br><div style='text-align: center; color: grey;'>Built with strictly offline classical NLP techniques and SpeechRecognition.</div>", unsafe_allow_html=True)
